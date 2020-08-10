@@ -1,0 +1,21 @@
+@Override
+	public BaseModelSearchResult<AccountEntry> search(
+		long companyId, String keywords, LinkedHashMap<String, Object> params,
+		int cur, int delta, String orderByField, boolean reverse) {
+
+		SearchResponse searchResponse = _searcher.search(
+			_getSearchRequest(
+				companyId, keywords, params, cur, delta, orderByField,
+				reverse));
+
+		SearchHits searchHits = searchResponse.getSearchHits();
+
+		List<AccountEntry> accountEntries = TransformUtil.transform(
+			searchHits.getSearchHits(),
+			searchHit -> {
+				Document document = searchHit.getDocument();
+
+				long accountEntryId = document.getLong(Field.ENTRY_CLASS_PK);
+
+				AccountEntry accountEntry = fetchAccountEntry(accountEntryId);
+
